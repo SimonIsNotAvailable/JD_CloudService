@@ -1,5 +1,6 @@
 package simon.jd_cloudservice.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.PathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -10,8 +11,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+@Slf4j
 @Component
 public class FileServiceImpl implements FileService{
+
+//    @Value()
     private String storage;     // application.properties
 
     @Override
