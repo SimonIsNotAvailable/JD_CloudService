@@ -1,8 +1,8 @@
 package simon.jd_cloudservice.service;
 
 import org.springframework.web.multipart.MultipartFile;
-import ru.netology.netologydiplomacloudservice.api.dto.FileDto;
-import ru.netology.netologydiplomacloudservice.api.dto.FileInfoDto;
+import simon.jd_cloudservice.dto.FileDto;
+import simon.jd_cloudservice.dto.FileInfoDto;
 
 import java.util.List;
 
