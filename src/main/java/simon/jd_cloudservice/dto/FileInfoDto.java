@@ -6,5 +6,4 @@ public class FileInfoDto {
 
     private String filename;
     private String size;
-    private String lastUpdate;
 }

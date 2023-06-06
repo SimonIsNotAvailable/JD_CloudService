@@ -19,6 +19,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CloudServiceImpl implements CloudService{
     private final CloudRepository cloudRepository;
+    private final FileService fileService;
     @Override
     public void saveFile(String filename, MultipartFile file) {
         try{
@@ -29,7 +30,11 @@ public class CloudServiceImpl implements CloudService{
             if (file == null) {
                 throw new WrongDataException("File is not attached to request");
             }
+
             File uploadedFile = createFileInfo(filename, file);
+
+            fileService.uploadFile(file.getBytes(), uploadedFile.getHash(), filename);
+            cloudRepository.save(uploadedFile);
 
         } catch (Exception Exception) {
 
