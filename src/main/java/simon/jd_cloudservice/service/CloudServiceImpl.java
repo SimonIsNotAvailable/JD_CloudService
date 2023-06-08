@@ -1,7 +1,9 @@
 package simon.jd_cloudservice.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.testcontainers.shaded.org.apache.commons.lang3.ArrayUtils;
@@ -10,6 +12,7 @@ import simon.jd_cloudservice.dto.FileInfoDto;
 import simon.jd_cloudservice.entity.File;
 import simon.jd_cloudservice.exception.FileHandlingException;
 import simon.jd_cloudservice.exception.WrongDataException;
+import simon.jd_cloudservice.mapper.FileInfoMapper;
 import simon.jd_cloudservice.repository.CloudRepository;
 
 import java.io.IOException;
@@ -17,17 +20,19 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CloudServiceImpl implements CloudService{
     private final CloudRepository cloudRepository;
     private final FileService fileService;
+    private final FileInfoMapper mapper;
+
     @Override
     public void saveFile(String filename, MultipartFile file) {
 
-        // TODO : add logging
-
         try{
+            log.info("Checking the existence of file " + filename);
             if (cloudRepository.findByFilename(filename).isPresent()) {
                 throw new WrongDataException(String.format("File %s already exists", filename));
             }
@@ -37,9 +42,11 @@ public class CloudServiceImpl implements CloudService{
             }
 
             File uploadedFile = createFileInfo(filename, file);
-
+            log.info("Uploading file " + filename);
             fileService.uploadFile(file.getBytes(), uploadedFile.getHash(), filename);
+            log.info("Saving file info of " + filename);
             cloudRepository.save(uploadedFile);
+            log.info(filename + " File info saved" );
 
         } catch (Exception e) {
             throw new FileHandlingException(e.getMessage());
@@ -65,8 +72,12 @@ public class CloudServiceImpl implements CloudService{
         File file = getExistingFile(filename);
 
         try {
+            log.info("Deleting file " + filename);
             fileService.deleteFile(file.getHash());
+            log.info("File deleted " + filename);
+            log.info("Deleting file info of " + filename);
             cloudRepository.delete(file);
+            log.info("File info deleted " + filename);
 
         } catch (Exception e){
             throw new FileHandlingException(e.getMessage());
@@ -84,8 +95,10 @@ public class CloudServiceImpl implements CloudService{
         File downloadedFile = getExistingFile(filename);
 
         try{
+            log.info("Downloading file " + filename);
             String hash = downloadedFile.getHash();
             Resource content = fileService.downloadFile(hash);
+            log.info( filename + " downloaded");
 
         return FileDto.builder()
                 .hash(hash)
@@ -107,6 +120,9 @@ public class CloudServiceImpl implements CloudService{
 
     @Override
     public List<FileInfoDto> getFiles(int limit) {
-        return null;
+        log.info("Getting files list");
+        return cloudRepository.findAll(Pageable.ofSize(limit))
+                .map(mapper::fileToFileInfoDto)
+                .toList();
     }
 }
