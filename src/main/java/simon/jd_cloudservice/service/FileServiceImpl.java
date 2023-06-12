@@ -29,14 +29,14 @@ public class FileServiceImpl implements FileService{
     }
 
     @Override
+    public Resource downloadFile(String hash) {
+        Path path = Paths.get(storage, hash);
+        return new PathResource(path);
+    }
+    @Override
     public void deleteFile(String hash) throws IOException {
         Path path = Paths.get(storage, hash);
         Files.delete(path);
     }
 
-    @Override
-    public Resource downloadFile(String hash) {
-        Path path = Paths.get(storage, hash);
-        return new PathResource(path);
-    }
 }
