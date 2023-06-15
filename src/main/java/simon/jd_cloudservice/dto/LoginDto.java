@@ -1,6 +1,5 @@
 package simon.jd_cloudservice.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 @NoArgsConstructor
