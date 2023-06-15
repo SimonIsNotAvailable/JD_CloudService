@@ -2,7 +2,6 @@ package simon.jd_cloudservice.config;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,21 +21,11 @@ import simon.jd_cloudservice.security.FilterJwt;
 import javax.servlet.Filter;
 import java.util.List;
 
-import static java.util.Collections.singletonList;
-
-import java.util.List;
-
-import static java.util.Collections.singletonList;
-
 @Configuration
 @EnableWebSecurity
-//@RequiredArgsConstructor
+@RequiredArgsConstructor
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final FilterJwt filter;
-
-    public SecurityConfiguration(FilterJwt filter) {
-        this.filter = filter;
-    }
 
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
@@ -57,10 +46,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .logout()
                 .logoutUrl("/logout")
                 .invalidateHttpSession(true)
-                        .clearAuthentication(true)
-                        .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler())
-                        .deleteCookies("auth-token")
-                        .deleteCookies("JSESSIONID");
+                .clearAuthentication(true)
+                .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler())
+                .deleteCookies("auth-token")
+                .deleteCookies("JSESSIONID");
 
         httpSecurity
                 .addFilterBefore((Filter) filter, (Class<? extends Filter>) UsernamePasswordAuthenticationFilter.class);
