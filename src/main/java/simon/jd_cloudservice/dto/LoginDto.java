@@ -1,15 +1,13 @@
 package simon.jd_cloudservice.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 public class LoginDto {
-
-//    @JsonProperty("auth-token")
-//    private String authToken;
+    private String login;
+    private String password;
 }
