@@ -8,10 +8,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.web.cors.CorsConfiguration;
@@ -19,68 +19,51 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import simon.jd_cloudservice.security.FilterJwt;
 
+import javax.servlet.Filter;
 import java.util.List;
+
+import static java.util.Collections.singletonList;
+
+import java.util.List;
+
+import static java.util.Collections.singletonList;
 
 @Configuration
 @EnableWebSecurity
 //@RequiredArgsConstructor
-public class SecurityConfiguration  {
+public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final FilterJwt filter;
 
     public SecurityConfiguration(FilterJwt filter) {
         this.filter = filter;
     }
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        return http
-                .csrf().disable()
-                .cors()
-                .and()
-                .apply(authFiltersConfigurer) // добавляем конфигурацию с нашими фильтрами
-                .and()
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login").permitAll()
-                        .anyRequest().authenticated())
-                .logout().addLogoutHandler(logoutHandler)
-                .and()
-                .build();
-    }
-    @Autowired
+    @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
 
-        httpSecurity
-                .cors()
-                .configurationSource(corsConfigurationSource());
-        httpSecurity
-                .csrf().disable()
-                .authorizeRequests()
-                .antMatchers("/login")
-                .permitAll()
-                .anyRequest()
-                .authenticated()
-                .and()
-                .exceptionHandling()
-                .authenticationEntryPoint(
-                        (request, response, authException) ->
-                        response
-                                .sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized error")
-                )
-                .and().sessionManagement()
+        httpSecurity.cors().configurationSource(corsConfigurationSource());
+        httpSecurity.csrf().disable()
+
+                .authorizeRequests().antMatchers("/login").permitAll().
+
+                anyRequest().authenticated().and().
+
+                exceptionHandling().authenticationEntryPoint((request, response, authException) ->
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized error")).
+                and().sessionManagement()
+
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         httpSecurity
-                .logout(logout -> {
-                            return logout
-                                    .logoutUrl("/logout")
-                                    .invalidateHttpSession(true)
-                                    .clearAuthentication(true)
-                                    .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler())
-                                    .deleteCookies("auth-token")
-                                    .deleteCookies("JSESSIONID");
-                        }
-                );
+                .logout()
+                .logoutUrl("/logout")
+                .invalidateHttpSession(true)
+                        .clearAuthentication(true)
+                        .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler())
+                        .deleteCookies("auth-token")
+                        .deleteCookies("JSESSIONID");
 
-        httpSecurity.addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
+        httpSecurity
+                .addFilterBefore((Filter) filter, (Class<? extends Filter>) UsernamePasswordAuthenticationFilter.class);
 
     }
 
@@ -90,12 +73,12 @@ public class SecurityConfiguration  {
     }
 
     @Bean
+    @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+    private CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of("http://localhost:8080"));
         configuration.setAllowedMethods(List.of(CorsConfiguration.ALL));
