@@ -12,17 +12,17 @@ import simon.jd_cloudservice.service.UserInfoService;
 public class CloudConfiguration {
 
     @Bean
-    public FilterJwt filterJwt (UserDetailsService userDetailsService){
+    public FilterJwt filterJwt(UserDetailsService userDetailsService) {
         return new FilterJwt(utilsJwt(userDetailsService));
     }
 
     @Bean
-    public UtilsJwt utilsJwt (UserDetailsService userDetailsService) {
+    public UtilsJwt utilsJwt(UserDetailsService userDetailsService) {
         return new UtilsJwt(userDetailsService);
     }
 
     @Bean
-    public UserInfoService userInfoService ( UserRepository userRepository){
+    public UserInfoService userInfoService(UserRepository userRepository) {
         return new UserInfoService(userRepository);
     }
 }

@@ -17,17 +17,17 @@ import lombok.*;
 @Table(name = "users")
 public class User {
 
-        @Id
-        @Column(name = "login")
-        private String login;
+    @Id
+    @Column(name = "login")
+    private String login;
 
-        @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-        @Column(name = "password")
-        private String password;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Column(name = "password")
+    private String password;
 
-        @Column(name = "authority")
-        private String authority;
+    @Column(name = "authority")
+    private String authority;
 
-        @Column(name = "enabled")
-        private Boolean enabled;
+    @Column(name = "enabled")
+    private Boolean enabled;
 }

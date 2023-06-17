@@ -15,7 +15,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import java.util.Date;
 
 @RequiredArgsConstructor
-public class UtilsJwt  {
+public class UtilsJwt {
     @Value("${jwt.token.secret}")
     private String secret;
 
@@ -46,6 +46,7 @@ public class UtilsJwt  {
         }
         return null;
     }
+
     public String getUsername(String token) {
         return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().getSubject();
     }

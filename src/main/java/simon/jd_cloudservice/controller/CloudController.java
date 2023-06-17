@@ -1,4 +1,5 @@
 package simon.jd_cloudservice.controller;
+
 import lombok.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -19,9 +20,10 @@ public class CloudController {
     public void uploadFile(@RequestParam String name, @RequestBody MultipartFile file) {
         cloudService.saveFile(name, file);
     }
-    @GetMapping ( "/file")
+
+    @GetMapping("/file")
     @ResponseStatus(HttpStatus.OK)
-    public FileDto downloadFile(@RequestParam String name){
+    public FileDto downloadFile(@RequestParam String name) {
         return cloudService.downloadFile(name);
     }
 
@@ -39,7 +41,7 @@ public class CloudController {
 
     @GetMapping("/list")
     @ResponseStatus(HttpStatus.OK)
-    public List<FileInfoDto> getFilesList (@RequestParam int limit){
+    public List<FileInfoDto> getFilesList(@RequestParam int limit) {
         return cloudService.getFiles(limit);
     }
 }

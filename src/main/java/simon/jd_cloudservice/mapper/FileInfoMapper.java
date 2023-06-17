@@ -7,5 +7,4 @@ import simon.jd_cloudservice.entity.File;
 @Component()
 public interface FileInfoMapper {
     FileInfoDto fileToFileInfoDto(File file);
-
 }
