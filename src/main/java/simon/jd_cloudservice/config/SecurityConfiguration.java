@@ -32,34 +32,7 @@ import java.util.List;
 public class SecurityConfiguration {
     private final FilterJwt filter;
     private final DataSource dataSource;
-//
-//    protected void configure(HttpSecurity httpSecurity) throws Exception {
-//
-//        httpSecurity.cors().configurationSource(corsConfigurationSource());
-//        httpSecurity.csrf().disable()
-//
-//                .authorizeRequests().antMatchers("/login").permitAll().
-//
-//                anyRequest().authenticated().and().
-//
-//                exceptionHandling().authenticationEntryPoint((request, response, authException) ->
-//                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized error")).
-//                and().sessionManagement()
-//
-//                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-//        httpSecurity
-//                .logout()
-//                .logoutUrl("/logout")
-//                .invalidateHttpSession(true)
-//                .clearAuthentication(true)
-//                .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler())
-//                .deleteCookies("auth-token")
-//                .deleteCookies("JSESSIONID");
-//
-//        httpSecurity
-//                .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
-//
-//    }
+
 
     @Autowired
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -80,22 +53,22 @@ public class SecurityConfiguration {
                         .anyRequest().authenticated()
                 )
 
-//
-//                .exceptionHandling()
-//                .authenticationEntryPoint((request, response, authException) ->
-//                        response
-//                                .sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized error"))
-//                .and()
-//                .sessionManagement()
-//                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-//                .and().logout().logoutUrl("/logout")
-//                .invalidateHttpSession(true)
-//                .clearAuthentication(true)
-//                .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler())
-//                .deleteCookies("auth-token")
-//                .deleteCookies("JSESSIONID")
-//                .and()
-//                .build();
+
+                .exceptionHandling()
+                .authenticationEntryPoint((request, response, authException) ->
+                        response
+                                .sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized error"))
+                .and()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and().logout().logoutUrl("/logout")
+                .invalidateHttpSession(true)
+                .clearAuthentication(true)
+                .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler())
+                .deleteCookies("auth-token")
+                .deleteCookies("JSESSIONID")
+                .and()
+                .build();
     }
 
     @Bean
