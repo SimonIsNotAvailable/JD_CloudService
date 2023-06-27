@@ -2,19 +2,15 @@ package simon.jd_cloudservice.config;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.web.cors.CorsConfiguration;
@@ -27,39 +23,25 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
 @RequiredArgsConstructor
-public class SecurityConfiguration {
+public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final FilterJwt filter;
     private final DataSource dataSource;
 
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
 
-    @Autowired
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.jdbcAuthentication()
-                .dataSource(dataSource)
-                .passwordEncoder(new BCryptPasswordEncoder())
-                .usersByUsernameQuery("select email, password, enabled from users where email = ?")
-                .authoritiesByUsernameQuery("select email, authority from authorities where email = ?")
-                .rolePrefix("ROLE_");
-    }
+        http.cors().configurationSource(corsConfigurationSource());
+        http.csrf().disable()
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        return http
-                .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login").permitAll()
-                        .anyRequest().authenticated()
-                )
+                .authorizeRequests().antMatchers("/login").permitAll().
 
+                anyRequest().authenticated().and().
 
-                .exceptionHandling()
-                .authenticationEntryPoint((request, response, authException) ->
-                        response
-                                .sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized error"))
-                .and()
-                .sessionManagement()
+                exceptionHandling().authenticationEntryPoint((request, response, authException) ->
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized error")).
+                and().sessionManagement()
+
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and().logout().logoutUrl("/logout")
                 .invalidateHttpSession(true)
@@ -69,6 +51,9 @@ public class SecurityConfiguration {
                 .deleteCookies("JSESSIONID")
                 .and()
                 .build();
+//
+//        http.addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
+
     }
 
     @Bean
