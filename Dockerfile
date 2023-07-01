@@ -1,13 +1,15 @@
-FROM node:alpine
-WORKDIR /usr/app/front
-EXPOSE 3000
-COPY ./ ./
-RUN npm install
-CMD ["npm", "start"]
+#
+# Build stage
+#
+FROM maven:3.6.0-jdk-11-slim AS build
+COPY src /app/src
+COPY pom.xml /app
+RUN mvn -f /app/pom.xml clean package
 
-FROM openjdk:8-jdk-alpine
-VOLUME /tmp
-EXPOSE 8099
-ARG JAR_FILE=build/libs/rebounder-chain-backend-0.0.2.jar
-ADD ${JAR_FILE} rebounder-chain-backend.jar
-ENTRYPOINT ["java","-jar","/rebounder-chain-backend.jar"]
+#
+# Package stage
+#
+FROM openjdk:11-jre-slim
+COPY --from=build /app/target/CloudService-0.0.1-SNAPSHOT.jar /usr/local/lib/CloudService.jar
+EXPOSE 8080
+ENTRYPOINT ["java","-jar","/usr/local/lib/CloudService.jar"]
