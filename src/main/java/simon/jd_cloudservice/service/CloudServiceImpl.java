@@ -2,11 +2,11 @@ package simon.jd_cloudservice.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.testcontainers.shaded.org.apache.commons.lang3.ArrayUtils;
 import simon.jd_cloudservice.dto.FileDto;
 import simon.jd_cloudservice.dto.FileInfoDto;
 import simon.jd_cloudservice.entity.File;
