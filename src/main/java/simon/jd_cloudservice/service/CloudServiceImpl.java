@@ -15,6 +15,7 @@ import simon.jd_cloudservice.exception.WrongDataException;
 import simon.jd_cloudservice.mapper.FileInfoMapper;
 import simon.jd_cloudservice.repository.CloudRepository;
 
+import javax.transaction.Transactional;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,6 +23,7 @@ import java.util.UUID;
 
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class CloudServiceImpl implements CloudService{
     private final CloudRepository cloudRepository;
