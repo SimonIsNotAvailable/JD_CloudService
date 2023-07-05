@@ -25,7 +25,7 @@ import java.util.UUID;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class CloudServiceImpl implements CloudService{
+public class CloudServiceImpl implements CloudService {
     private final CloudRepository cloudRepository;
     private final FileService fileService;
     private final FileInfoMapper mapper;
@@ -33,7 +33,7 @@ public class CloudServiceImpl implements CloudService{
     @Override
     public void saveFile(String filename, MultipartFile file) {
 
-        try{
+        try {
             log.info("Checking the existence of file " + filename);
             if (cloudRepository.findByFilename(filename).isPresent()) {
                 throw new WrongDataException(String.format("File %s already exists", filename));
@@ -48,7 +48,7 @@ public class CloudServiceImpl implements CloudService{
             fileService.uploadFile(file.getBytes(), uploadedFile.getHash(), filename);
             log.info("Saving file info of " + filename);
             cloudRepository.save(uploadedFile);
-            log.info(filename + " File info saved" );
+            log.info(filename + " File info saved");
 
         } catch (Exception e) {
             throw new FileHandlingException(e.getMessage());
@@ -70,7 +70,7 @@ public class CloudServiceImpl implements CloudService{
     }
 
     @Override
-    public void deleteFile(String filename)  {
+    public void deleteFile(String filename) {
         File file = getExistingFile(filename);
 
         try {
@@ -81,31 +81,31 @@ public class CloudServiceImpl implements CloudService{
             cloudRepository.delete(file);
             log.info("File info deleted " + filename);
 
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new FileHandlingException(e.getMessage());
         }
     }
 
     private File getExistingFile(String filename) {
         return cloudRepository.findByFilename(filename).orElseThrow(
-                () -> new WrongDataException("File " + filename + "not exists")
-        ) ;
+                () -> new WrongDataException("File " + filename + " not exists")
+        );
     }
 
     @Override
     public FileDto downloadFile(String filename) {
         File downloadedFile = getExistingFile(filename);
 
-        try{
+        try {
             log.info("Downloading file " + filename);
             String hash = downloadedFile.getHash();
             Resource content = fileService.downloadFile(hash);
-            log.info( filename + " downloaded");
+            log.info(filename + " downloaded");
 
-        return FileDto.builder()
-                .hash(hash)
-                .file(content.toString())
-                .build();
+            return FileDto.builder()
+                    .hash(hash)
+                    .file(content.toString())
+                    .build();
 
         } catch (Exception e) {
             throw new FileHandlingException(e.getMessage());
