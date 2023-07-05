@@ -20,9 +20,4 @@ public class CloudConfiguration {
     public UtilsJwt utilsJwt(UserDetailsService userDetailsService) {
         return new UtilsJwt(userDetailsService);
     }
-
-//    @Bean
-//    public UserInfoService userInfoService(UserRepository userRepository) {
-//        return new UserInfoService(userRepository);
-//    }
 }
