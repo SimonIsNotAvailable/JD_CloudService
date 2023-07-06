@@ -10,6 +10,6 @@ RUN mvn -f /app/pom.xml clean package
 # Package stage
 #
 FROM openjdk:11-jre-slim
-COPY --from=build /app/target/CloudService-0.0.1-SNAPSHOT.jar /usr/local/lib/CloudService.jar
+COPY --from=build /app/target/JD_CloudService-0.0.1-SNAPSHOT.jar /usr/local/lib/JD_CloudService.jar
 EXPOSE 8080
-ENTRYPOINT ["java","-jar","/usr/local/lib/CloudService.jar"]
+ENTRYPOINT ["java","-jar","/usr/local/lib/JD_CloudService.jar"]
