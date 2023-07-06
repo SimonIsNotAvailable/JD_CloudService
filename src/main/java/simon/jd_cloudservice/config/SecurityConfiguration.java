@@ -52,9 +52,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .clearAuthentication(true)
                 .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler())
                 .deleteCookies("auth-token")
-                .deleteCookies("JSESSIONID")
-                .and()
-                .build();
+                .deleteCookies("JSESSIONID");
+//                .and()
+//                .build();
         http.addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
     }
 
