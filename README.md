@@ -11,15 +11,16 @@
 - Spring Security
 - Maven
 - Docker
-- JUnit 
+- JUnit
 - Mockito 
+- TestContainers (пока еще нет)
 - Flyway
 - Lombok
 - PostgreSQL
 
 ## Запуск приложения
 В терминале, находясь в корневой директории проекта, необходимо ввести команду:  
-```docker-compose up```
+```docker-compose up``` (пока ещё нет)
 В результате в соответствии с Dockerfile будет создан и запущен контейнер, содержащий в себе REST-сервис,
 а также БД PostreSQL. 
-Приложение доступно по адресу http://localhost:80 и логин в приложение под пользователем `user@mail.com` c паролем `password` 
+Приложение доступно по адресу http://localhost:80 и логин в приложение под пользователем `user@mail.com` c паролем `USER` 
