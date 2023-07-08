@@ -1,7 +1,8 @@
 version: "3.9"
 services:
   cloud_service:
-    build: CloudService.jar
+    build: .
+#    build: JD_CloudService.jar
     restart: on-failure
     ports:
       - "8080:8080"
@@ -22,8 +23,12 @@ services:
     volumes:
       - ../2. Init Database:/docker-entrypoint-initdb.d
       - storage-data:/var/lib/postgresql/data
+    networks:
+      - cloud-net
     ports:
       - "5432:5432"
+networks:
+  cloud-net:
 
 volumes:
   storage-data:
