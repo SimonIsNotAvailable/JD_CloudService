@@ -2,12 +2,11 @@ version: "3.9"
 services:
   cloud_service:
     build: .
-#    build: JD_CloudService.jar
     restart: on-failure
     ports:
       - "8080:8080"
     networks:
-      - cloud-net
+      - cloudnet
     environment:
         - spring.datasource.url=jdbc:postgresql://localhost:5432/postgres
     depends_on:
@@ -16,7 +15,7 @@ services:
   postgres:
     image: postgres:14.8-alpine3.18
     environment:
-      POSTGRES_DB: "storage"
+      POSTGRES_DB: postgres
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "postgres"
       PGDATA: "/var/lib/postgresql/data/pgdata"
@@ -24,11 +23,11 @@ services:
       - ../2. Init Database:/docker-entrypoint-initdb.d
       - storage-data:/var/lib/postgresql/data
     networks:
-      - cloud-net
+      - cloudnet
     ports:
       - "5432:5432"
 networks:
-  cloud-net:
+  cloudnet:
 
 volumes:
   storage-data:
