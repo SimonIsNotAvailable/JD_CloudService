@@ -4,7 +4,6 @@ import org.springframework.web.multipart.MultipartFile;
 import simon.jd_cloudservice.dto.FileDto;
 import simon.jd_cloudservice.dto.FileInfoDto;
 
-import java.io.IOException;
 import java.util.List;
 
 public interface CloudService {

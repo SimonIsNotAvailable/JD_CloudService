@@ -28,8 +28,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final FilterJwt filter;
-    private final DataSource dataSource;
-    UserDetailsService userDetailsService;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
