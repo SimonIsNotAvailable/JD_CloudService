@@ -17,7 +17,7 @@ import java.nio.file.Paths;
 public class FileServiceImpl implements FileService{
 
     @Value("${storage.path}")
-    private String storage;     // application.properties
+    private String storage;
 
     @Override
     public void uploadFile(byte[] content, String hash, String filename) throws IOException {

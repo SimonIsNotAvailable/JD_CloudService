@@ -1,9 +1,7 @@
 package simon.jd_cloudservice.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.Table;
+import javax.persistence.*;
+
 import lombok.*;
 import java.time.LocalDateTime;
 
@@ -23,4 +21,8 @@ public class File {
     private String filename;
     private Long size;
     private LocalDateTime createdTime;
+    @ManyToOne
+    @JoinColumn(name="user_id", nullable = false)
+    private User user;
+
 }

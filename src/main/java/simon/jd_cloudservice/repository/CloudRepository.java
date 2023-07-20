@@ -8,5 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface CloudRepository extends JpaRepository<File, String> {
-    Optional<File> findByFilename(String filename);
+    Optional<File> findByFilename(String filename, String currentUserLogin);
 }

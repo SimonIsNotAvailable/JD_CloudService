@@ -14,6 +14,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import simon.jd_cloudservice.dto.FileDto;
 import simon.jd_cloudservice.entity.File;
+import simon.jd_cloudservice.entity.User;
 import simon.jd_cloudservice.exception.FileHandlingException;
 import simon.jd_cloudservice.exception.WrongDataException;
 import simon.jd_cloudservice.mapper.FileInfoMapper;
@@ -46,19 +47,20 @@ public class CloudServiceTest {
     private MockMultipartFile mockedFile;
     private String mockedHash;
     private Resource mockedResource;
+    private User mockedUser;
 
     @BeforeEach
     public void setUp() {
         this.mockedFilename = "Test";
         this.mockedHash = "12345";
         this.mockedFile = new MockMultipartFile("Test", new byte[]{1, 2, 3});
-        this.mockedFileFromDb = new File("12345", "Test", 100L, LocalDateTime.now());
+        this.mockedFileFromDb = new File("12345", "Test", 100L, LocalDateTime.now(), User.builder().login("USER").build());
         this.mockedResource = new PathResource("/test.txt");
     }
 
     @Test
     public void testSaveFileWhenExistedFilenameThenThrowEx() {
-        when(cloudRepository.findByFilename(mockedFilename)).thenReturn(Optional.of(mockedFileFromDb));
+        when(cloudRepository.findByFilename(mockedFilename, "USER")).thenReturn(Optional.of(mockedFileFromDb));
 
         Exception ex = Assertions.assertThrows(FileHandlingException.class,
                 () -> cloudService.saveFile(mockedFilename, mockedFile));
@@ -68,7 +70,7 @@ public class CloudServiceTest {
 
     @Test
     public void testSaveFileWhenFileIsNotAttachedThenThrowEx() {
-        when(cloudRepository.findByFilename(mockedFilename)).thenReturn(Optional.of(mockedFileFromDb));
+        when(cloudRepository.findByFilename(mockedFilename, "USER")).thenReturn(Optional.of(mockedFileFromDb));
 
         Exception ex = Assertions.assertThrows(FileHandlingException.class,
                 () -> cloudService.saveFile(mockedFilename, mockedFile));
@@ -78,7 +80,7 @@ public class CloudServiceTest {
 
     @Test
     public void testDeleteFileWhenNotExistingFileThenThrowEx() {
-        when(cloudRepository.findByFilename(mockedFilename)).thenReturn(Optional.empty());
+        when(cloudRepository.findByFilename(mockedFilename, "USER")).thenReturn(Optional.empty());
 
         Exception ex = Assertions.assertThrows(WrongDataException.class,
                 () -> cloudService.deleteFile(mockedFilename));
@@ -88,7 +90,7 @@ public class CloudServiceTest {
 
     @Test
     public void testDeleteFileWhenCorrectDataThenDeleteFile() throws IOException {
-        when(cloudRepository.findByFilename(mockedFilename)).thenReturn(Optional.of(mockedFileFromDb));
+        when(cloudRepository.findByFilename(mockedFilename, "USER")).thenReturn(Optional.of(mockedFileFromDb));
 
         cloudService.deleteFile(mockedFilename);
 
@@ -98,7 +100,7 @@ public class CloudServiceTest {
 
     @Test
     public void testDownloadFileWhenNotExistingFileThenThrowEx() {
-        when(cloudRepository.findByFilename(mockedFilename)).thenReturn(Optional.empty());
+        when(cloudRepository.findByFilename(mockedFilename, "USER")).thenReturn(Optional.empty());
 
         Exception ex = Assertions.assertThrows(WrongDataException.class,
                 () -> cloudService.downloadFile(mockedFilename));
@@ -108,7 +110,7 @@ public class CloudServiceTest {
 
     @Test
     public void testDownloadFileWhenCorrectDataThenReturnFileDto() {
-        when(cloudRepository.findByFilename(mockedFilename)).thenReturn(Optional.of(mockedFileFromDb));
+        when(cloudRepository.findByFilename(mockedFilename, "USER")).thenReturn(Optional.of(mockedFileFromDb));
         when(fileService.downloadFile(mockedHash)).thenReturn(mockedResource);
 
         FileDto actual = cloudService.downloadFile(mockedFilename);
@@ -122,7 +124,7 @@ public class CloudServiceTest {
     @Test
     public void testEditFilenameWhenCorrectDataThenSaveWithNewName() {
         String newName = "new_name";
-        when(cloudRepository.findByFilename(mockedFilename)).thenReturn(Optional.of(mockedFileFromDb));
+        when(cloudRepository.findByFilename(mockedFilename, "USER")).thenReturn(Optional.of(mockedFileFromDb));
 
         cloudService.editFilename(mockedFilename, newName);
 

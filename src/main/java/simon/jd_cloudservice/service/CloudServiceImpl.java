@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import simon.jd_cloudservice.dto.FileDto;
@@ -14,6 +15,7 @@ import simon.jd_cloudservice.exception.FileHandlingException;
 import simon.jd_cloudservice.exception.WrongDataException;
 import simon.jd_cloudservice.mapper.FileInfoMapper;
 import simon.jd_cloudservice.repository.CloudRepository;
+import simon.jd_cloudservice.repository.UserRepository;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
@@ -28,6 +30,7 @@ import java.util.UUID;
 public class CloudServiceImpl implements CloudService {
     private final CloudRepository cloudRepository;
     private final FileService fileService;
+    private final UserRepository userRepository;
     private final FileInfoMapper mapper;
 
     @Override
@@ -35,7 +38,7 @@ public class CloudServiceImpl implements CloudService {
 
         try {
             log.info("Checking the existence of file " + filename);
-            if (cloudRepository.findByFilename(filename).isPresent()) {
+            if (cloudRepository.findByFilename(filename, getCurrentUserLogin()).isPresent()) {
                 throw new WrongDataException(String.format("File %s already exists", filename));
             }
 
@@ -66,6 +69,10 @@ public class CloudServiceImpl implements CloudService {
                 .filename(filename)
                 .size(file.getSize())
                 .createdTime(createdTime)
+                .user(
+                        userRepository
+                                .findByLogin(getCurrentUserLogin())
+                                .orElseThrow(()-> new WrongDataException("Unable to save. User not found")))
                 .build();
     }
 
@@ -87,7 +94,7 @@ public class CloudServiceImpl implements CloudService {
     }
 
     private File getExistingFile(String filename) {
-        return cloudRepository.findByFilename(filename).orElseThrow(
+        return cloudRepository.findByFilename(filename, getCurrentUserLogin()).orElseThrow(
                 () -> new WrongDataException("File " + filename + " not exists")
         );
     }
@@ -126,5 +133,9 @@ public class CloudServiceImpl implements CloudService {
         return cloudRepository.findAll(Pageable.ofSize(limit))
                 .map(mapper::fileToFileInfoDto)
                 .toList();
+    }
+
+    private String getCurrentUserLogin()  {
+        return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 }
