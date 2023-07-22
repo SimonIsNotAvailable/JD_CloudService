@@ -130,7 +130,7 @@ public class CloudServiceImpl implements CloudService {
     @Override
     public List<FileInfoDto> getFiles(int limit) {
         log.info("Getting files list");
-        return cloudRepository.findAll(Pageable.ofSize(limit))
+        return cloudRepository.findAllByUser_Login(getCurrentUserLogin(), Pageable.ofSize(limit))
                 .map(mapper::fileToFileInfoDto)
                 .toList();
     }

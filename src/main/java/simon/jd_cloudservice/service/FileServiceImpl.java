@@ -39,5 +39,4 @@ public class FileServiceImpl implements FileService{
         Path path = Paths.get(storage, hash);
         Files.delete(path);
     }
-
 }
