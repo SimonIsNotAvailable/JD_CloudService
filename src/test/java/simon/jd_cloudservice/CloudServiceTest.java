@@ -32,7 +32,6 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
-//@ExtendWith(MockitoExtension.class)
 @ContextConfiguration(classes = {FileInfoMapper.class})
 
 public class CloudServiceTest {
@@ -47,13 +46,14 @@ public class CloudServiceTest {
     private MockMultipartFile mockedFile;
     private String mockedHash;
     private Resource mockedResource;
-    private User mockedUser;
+    private String mockedUserLogin;
 
     @BeforeEach
     public void setUp() {
         this.mockedFilename = "Test";
         this.mockedHash = "12345";
         this.mockedFile = new MockMultipartFile("Test", new byte[]{1, 2, 3});
+        this.mockedUserLogin = "USER";
         this.mockedFileFromDb = new File("12345", "Test", 100L, LocalDateTime.now(), User.builder().login("USER").build());
         this.mockedResource = new PathResource("/test.txt");
     }
@@ -63,7 +63,7 @@ public class CloudServiceTest {
         when(cloudRepository.findByFilename(mockedFilename, "USER")).thenReturn(Optional.of(mockedFileFromDb));
 
         Exception ex = Assertions.assertThrows(FileHandlingException.class,
-                () -> cloudService.saveFile(mockedFilename, mockedFile));
+                () -> cloudService.saveFile(mockedFilename, mockedFile, mockedUserLogin));
 
         Truth.assertThat(ex).hasMessageThat().contains("already exists");
     }
@@ -73,7 +73,7 @@ public class CloudServiceTest {
         when(cloudRepository.findByFilename(mockedFilename, "USER")).thenReturn(Optional.of(mockedFileFromDb));
 
         Exception ex = Assertions.assertThrows(FileHandlingException.class,
-                () -> cloudService.saveFile(mockedFilename, mockedFile));
+                () -> cloudService.saveFile(mockedFilename, mockedFile, mockedUserLogin));
 
         Truth.assertThat(ex).hasMessageThat().contains("already exists");
     }
@@ -83,7 +83,7 @@ public class CloudServiceTest {
         when(cloudRepository.findByFilename(mockedFilename, "USER")).thenReturn(Optional.empty());
 
         Exception ex = Assertions.assertThrows(WrongDataException.class,
-                () -> cloudService.deleteFile(mockedFilename));
+                () -> cloudService.deleteFile(mockedFilename, mockedUserLogin));
 
         Truth.assertThat(ex).hasMessageThat().contains("not exist");
     }
@@ -92,7 +92,7 @@ public class CloudServiceTest {
     public void testDeleteFileWhenCorrectDataThenDeleteFile() throws IOException {
         when(cloudRepository.findByFilename(mockedFilename, "USER")).thenReturn(Optional.of(mockedFileFromDb));
 
-        cloudService.deleteFile(mockedFilename);
+        cloudService.deleteFile(mockedFilename, mockedUserLogin);
 
         verify(fileService, times(1)).deleteFile(mockedHash);
         verify(cloudRepository, times(1)).delete(mockedFileFromDb);
@@ -103,7 +103,7 @@ public class CloudServiceTest {
         when(cloudRepository.findByFilename(mockedFilename, "USER")).thenReturn(Optional.empty());
 
         Exception ex = Assertions.assertThrows(WrongDataException.class,
-                () -> cloudService.downloadFile(mockedFilename));
+                () -> cloudService.downloadFile(mockedFilename, mockedUserLogin));
 
         Truth.assertThat(ex).hasMessageThat().contains("not exist");
     }
@@ -113,7 +113,7 @@ public class CloudServiceTest {
         when(cloudRepository.findByFilename(mockedFilename, "USER")).thenReturn(Optional.of(mockedFileFromDb));
         when(fileService.downloadFile(mockedHash)).thenReturn(mockedResource);
 
-        FileDto actual = cloudService.downloadFile(mockedFilename);
+        FileDto actual = cloudService.downloadFile(mockedFilename, mockedUserLogin);
 
         verify(fileService, times(1)).downloadFile(mockedHash);
 
@@ -126,7 +126,7 @@ public class CloudServiceTest {
         String newName = "new_name";
         when(cloudRepository.findByFilename(mockedFilename, "USER")).thenReturn(Optional.of(mockedFileFromDb));
 
-        cloudService.editFilename(mockedFilename, newName);
+        cloudService.editFilename(mockedFilename, newName, mockedUserLogin);
 
         verify(cloudRepository, times(1)).save(mockedFileFromDb);
         Assertions.assertEquals(mockedFileFromDb.getFilename(), newName);

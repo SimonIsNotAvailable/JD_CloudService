@@ -17,10 +17,10 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class UtilsJwt {
     @Value("${jwt.token.secret}")
-    private String secret;
+    private final String secret;
 
     @Value("${jwt.token.expired}")
-    private long validityInMilliseconds;
+    private final long validityInMilliseconds;
 
     private final UserDetailsService userDetailsService;
 

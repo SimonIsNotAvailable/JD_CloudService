@@ -9,7 +9,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class FileDto {
 
-    private String hash;
-    private String file;
+    private final String hash;
+    private final String file;
 }
 

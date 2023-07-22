@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import simon.jd_cloudservice.dto.FileDto;
@@ -34,11 +33,11 @@ public class CloudServiceImpl implements CloudService {
     private final FileInfoMapper mapper;
 
     @Override
-    public void saveFile(String filename, MultipartFile file) {
+    public void saveFile(String filename, MultipartFile file,  String currentUserLogin) {
 
         try {
             log.info("Checking the existence of file " + filename);
-            if (cloudRepository.findByFilename(filename, getCurrentUserLogin()).isPresent()) {
+            if (cloudRepository.findByFilename(filename, currentUserLogin).isPresent()) {
                 throw new WrongDataException(String.format("File %s already exists", filename));
             }
 
@@ -46,7 +45,7 @@ public class CloudServiceImpl implements CloudService {
                 throw new WrongDataException("File is not attached to request");
             }
 
-            File uploadedFile = createFileInfo(filename, file);
+            File uploadedFile = createFileInfo(filename, file, currentUserLogin);
             log.info("Uploading file " + filename);
             fileService.uploadFile(file.getBytes(), uploadedFile.getHash(), filename);
             log.info("Saving file info of " + filename);
@@ -58,7 +57,7 @@ public class CloudServiceImpl implements CloudService {
         }
     }
 
-    private File createFileInfo(String filename, MultipartFile file) throws IOException {
+    private File createFileInfo(String filename, MultipartFile file, String currentUserLogin) throws IOException {
         LocalDateTime createdTime = LocalDateTime.now();
 
         String hash = UUID.nameUUIDFromBytes(
@@ -71,14 +70,14 @@ public class CloudServiceImpl implements CloudService {
                 .createdTime(createdTime)
                 .user(
                         userRepository
-                                .findByLogin(getCurrentUserLogin())
+                                .findByLogin(currentUserLogin)
                                 .orElseThrow(()-> new WrongDataException("Unable to save. User not found")))
                 .build();
     }
 
     @Override
-    public void deleteFile(String filename) {
-        File file = getExistingFile(filename);
+    public void deleteFile(String filename, String currentUserLogin) {
+        File file = getExistingFile(filename, currentUserLogin);
 
         try {
             log.info("Deleting file " + filename);
@@ -93,15 +92,15 @@ public class CloudServiceImpl implements CloudService {
         }
     }
 
-    private File getExistingFile(String filename) {
-        return cloudRepository.findByFilename(filename, getCurrentUserLogin()).orElseThrow(
+    private File getExistingFile(String filename, String currentUserLogin) {
+        return cloudRepository.findByFilename(filename, currentUserLogin).orElseThrow(
                 () -> new WrongDataException("File " + filename + " not exists")
         );
     }
 
     @Override
-    public FileDto downloadFile(String filename) {
-        File downloadedFile = getExistingFile(filename);
+    public FileDto downloadFile(String filename, String currentUserLogin) {
+        File downloadedFile = getExistingFile(filename, currentUserLogin);
 
         try {
             log.info("Downloading file " + filename);
@@ -120,22 +119,19 @@ public class CloudServiceImpl implements CloudService {
     }
 
     @Override
-    public void editFilename(String filename, String newName) {
-        File editedFile = getExistingFile(filename);
+    public void editFilename(String filename, String newName, String currentUserLogin) {
+        File editedFile = getExistingFile(filename, currentUserLogin);
 
         editedFile.setFilename(newName);
         cloudRepository.save(editedFile);
     }
 
     @Override
-    public List<FileInfoDto> getFiles(int limit) {
+    public List<FileInfoDto> getFiles(int limit, String currentUserLogin) {
         log.info("Getting files list");
-        return cloudRepository.findAllByUser_Login(getCurrentUserLogin(), Pageable.ofSize(limit))
+        return cloudRepository.findAllByUser_Login(currentUserLogin, Pageable.ofSize(limit))
                 .map(mapper::fileToFileInfoDto)
                 .toList();
     }
 
-    private String getCurrentUserLogin()  {
-        return SecurityContextHolder.getContext().getAuthentication().getName();
-    }
 }
