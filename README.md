@@ -13,14 +13,14 @@
 - Docker
 - JUnit
 - Mockito 
-- TestContainers (пока еще нет)
+- Testcontainers
 - Flyway
 - Lombok
 - PostgreSQL
 
 ## Запуск приложения
 В терминале, находясь в корневой директории проекта, необходимо ввести команду:  
-```docker-compose up``` (пока ещё нет)
+```docker-compose up```
 В результате в соответствии с Dockerfile будет создан и запущен контейнер, содержащий в себе REST-сервис,
 а также БД PostreSQL. 
 После запуска приложение доступно по адресу http://localhost:8080 и логин в приложение под пользователем `user@mail.com` c паролем `USER` 
